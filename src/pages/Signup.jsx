@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Input } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { Context } from '../context/Context';
 import axios from "axios";
 import { IoMdEyeOff } from "react-icons/io";
@@ -65,20 +65,29 @@ function Signup() {
   }
 
   useEffect(() => {
+    const isPasswordValidated =
+        !passwordErrors.number &&
+        !passwordErrors.character &&
+        !passwordErrors.specialCharacter;
 
-    const isPasswordValidated = !passwordErrors.number && !passwordErrors.character && !passwordErrors.specialCharacter;
-    if (signupDetails.name.length > 0 && signupDetails.email.length > 0 && isPasswordValidated && signupDetails.password.length > 0) {
-      setValidated(true);
+    if (
+        signupDetails.name.length > 0 &&
+        signupDetails.email.length > 0 &&
+        signupDetails.password.length > 0 &&
+        isPasswordValidated
+    ) {
+        setValidated(true);
+    } else {
+        setValidated(false);
     }
-    else {
-      setValidated(false);
-    }
-
-    console.log("inside the use state");
-
-    return;
-
-  }, [signupDetails.name, signupDetails.email, signupDetails.password])
+}, [
+    signupDetails.name,
+    signupDetails.email,
+    signupDetails.password,
+    passwordErrors.number,
+    passwordErrors.character,
+    passwordErrors.specialCharacter,
+]);
 
   const handlePasswordChange = (e) => {
 
