@@ -1,7 +1,7 @@
 import React from 'react';
 import Navbar from "../comonents/Navbar";
 import Sidebar from "../comonents/Sidebar";
-import {Routes , Route} from "react-router-dom";
+
 import RightContent from "../comonents/rightDisplay/RightContent";
 
 const MainPage = () => {

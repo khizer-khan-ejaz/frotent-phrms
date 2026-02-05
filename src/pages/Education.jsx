@@ -2,7 +2,7 @@ import React from 'react';
 import Footer from "../comonents/footer";
 import Nav from "../comonents/Nav";
 import OurPrograms from '../comonents/OurProgram';
-import { FaBook, FaGraduationCap, FaUsers, FaHeart, FaChalkboardTeacher, FaHandsHelping, FaDonate, FaUserGraduate, FaAward, FaComments } from 'react-icons/fa';
+import { FaBook, FaGraduationCap, FaUsers, FaChalkboardTeacher, FaHandsHelping, FaDonate, FaUserGraduate, FaAward, FaComments } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const Education = () => {

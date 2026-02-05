@@ -12,7 +12,7 @@ import {
     Input,
     Text,
     Flex,
-    Select,
+    
     Stack,
     Textarea,
     InputGroup,
@@ -48,10 +48,7 @@ const CreateBlog = ({blogs , setBlogs , setTotalBlogs}) => {
           year: undefined
       })
   
-      const [eventDetail , setEventDetail] = useState({
-          desc : "",
-          day : Number,
-        })
+      
       
   
       const handleDateChange = (date) => {

@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, {  useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Flex, Input } from '@chakra-ui/react';
-import { Context } from '../context/Context';
+
 import axios from "axios";
 import { IoMdEyeOff } from "react-icons/io";
 import { FaEye } from "react-icons/fa";

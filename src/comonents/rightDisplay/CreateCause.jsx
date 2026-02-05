@@ -12,18 +12,15 @@ import {
     Input,
     Text,
     Flex,
-    Select,
-    Stack,
+    
+    
     Textarea,
-    InputGroup,
-    InputRightElement,
+    
+    
     Image
 } from '@chakra-ui/react'
 import { CiImageOn } from "react-icons/ci";
 import axios from "axios";
-import DatePicker from 'react-datepicker';
-import { CiCalendarDate } from "react-icons/ci";
-import { monthConverter } from "./dateConverter";
 import { IoMdAddCircle } from "react-icons/io";
 import { Context } from '../../context/Context';
 import useToast from "../../hooks/useToast";

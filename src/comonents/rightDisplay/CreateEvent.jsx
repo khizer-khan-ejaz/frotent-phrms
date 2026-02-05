@@ -25,7 +25,7 @@ import DatePicker from 'react-datepicker';
 import { CiCalendarDate } from "react-icons/ci";
 import { monthConverter } from "./dateConverter";
 import { IoMdAddCircle } from "react-icons/io";
-import { IoIosCloseCircle } from "react-icons/io";
+
 import { Context } from '../../context/Context';
 import useToast from "../../hooks/useToast";
 
@@ -48,12 +48,6 @@ const CreateEvent = ({ setTotalEvents , setEvents }) => {
         year: undefined
     })
 
-    const [eventDetail , setEventDetail] = useState({
-        title : "",
-        desc : "",
-        venue : "",
-        day : Number,
-      })
     
       const[startTime , setStartTime] = useState({
         timeValHour : undefined,

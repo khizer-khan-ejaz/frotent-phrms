@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import axios from "axios";
-import DatePicker from "react-datepicker";
+
 import "react-datepicker/dist/react-datepicker.css"
 import { Button, Flex, SimpleGrid, Spinner } from '@chakra-ui/react';
 import CreateEvent from './CreateEvent';
-import { Box, Collapse, Text } from "@chakra-ui/react";
+import {  Collapse } from "@chakra-ui/react";
 import { Context } from '../../context/Context';
 import DeleteButton from './DeleteButton';
-import { MdCancel, MdDelete } from "react-icons/md";
+import { MdCancel } from "react-icons/md";
 import useToast from "../../hooks/useToast";
 
 const Events = () => {
@@ -18,7 +18,7 @@ const Events = () => {
   const { setTotalEvents } = useContext(Context);
   const [events, setEvents] = useState([]);
   const [eventLoading, setEventLoading] = useState(false);
-  const [show, setShow] = React.useState(false);
+  
   const [collapseState, setCollapseState] = useState([]);
   const [deleteActivate, setDeleteActive] = useState(false);
 
@@ -58,7 +58,7 @@ const Events = () => {
       });
       
       setEvents(prev=>{
-        return prev.filter(item=> item._id != event._id);
+        return prev.filter(item=> item._id !== event._id);
       })
 
       showSuccess(data.success);
@@ -71,34 +71,31 @@ const Events = () => {
   }
 
 
-  useEffect(() => {
+useEffect(() => {
+  (async () => {
+    try {
+      setEventLoading(true);
 
-    (async () => {
-      try {
-        setEventLoading(true);
-        const res = await axios({
-          url: "https://phrmsbackend.vercel.app/api/events",
-          method: "get",
-        })
+      const res = await axios.get(
+        "https://phrmsbackend.vercel.app/api/events"
+      );
 
-        const data = res.data;
-        console.log(data);
-        setEvents(data.events);
+      const data = res.data;
 
-        setTotalEvents(data.events.length);
-        localStorage.setItem("totalEvents", data.events.length);
-        setCollapseState(prev => {
-          return data.events.map(item => false);
-        })
+      setEvents(data.events);
+      setTotalEvents(data.events.length);
+      localStorage.setItem("totalEvents", data.events.length);
 
-      } catch (err) {
-        console.log(err.message);
-      } finally {
-        setEventLoading(false);
-      }
-    })()
-
-  }, []);
+      setCollapseState(
+        data.events.map(() => false)
+      );
+    } catch (err) {
+      console.log(err.message);
+    } finally {
+      setEventLoading(false);
+    }
+  })();
+}, [setTotalEvents]);
 
 
   if (eventLoading) {

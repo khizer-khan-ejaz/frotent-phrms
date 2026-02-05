@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react'
-import { Button, Flex, Spinner, Collapse, Text } from '@chakra-ui/react'
+import { Button, Flex, Spinner, Collapse,  } from '@chakra-ui/react'
 import axios from 'axios'
 import CreateBlog from './CreateBlog';
-import { MdCancel, MdDelete } from "react-icons/md";
+import { MdCancel } from "react-icons/md";
 import { Context } from '../../context/Context';
 import DeleteButton from './DeleteButton';
 import useToast from "../../hooks/useToast";

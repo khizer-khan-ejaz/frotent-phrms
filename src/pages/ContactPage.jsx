@@ -294,6 +294,7 @@ const ContactPage = () => {
               <div className="bg-white rounded-3xl shadow-2xl overflow-hidden h-full min-h-[600px]">
                 <div className="h-full relative">
                   <iframe
+                    title="Google Map Location"
                     className="w-full h-full min-h-[600px]"
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4483.702194244415!2d77.27810447436347!3d28.646775928198798!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfc80ac28a93b%3A0x2d1b7ebca1239ff5!2sGeeta%20Colony%2C%20Laxmi%20Nagar%2C%20Delhi%2C%20110031!5e0!3m2!1sen!2sin!4v1695048967387!5m2!1sen!2sin"
                     style={{ border: 0 }}

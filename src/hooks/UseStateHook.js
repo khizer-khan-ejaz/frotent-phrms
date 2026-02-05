@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 
 const UseStateHook = (route) => {
 
@@ -7,29 +7,22 @@ const UseStateHook = (route) => {
     const[data , setData] = useState([])
     const[dataLoading , setDataLoading] = useState(true);
 
-    useEffect(()=>{
+    useEffect(() => {
+  (async () => {
+    try {
+      setDataLoading(true);
 
-        (async()=>{
-            try{
-                setDataLoading(true);
-                const res = await axios({
-                    method : "get",
-                    url : route
-                })
+      const res = await axios.get(route);
+      setData(res.data);
 
-                const data = res.data
-                setData(data);
+    } catch (err) {
+      console.log(err.message);
+    } finally {
+      setDataLoading(false);
+    }
+  })();
+}, [route]);
 
-            }catch(err){
-                console.log(err.message);
-
-            }finally{
-                setDataLoading(false);
-            }
-
-        })()
-
-    },[])
 
   return {data , dataLoading}
 

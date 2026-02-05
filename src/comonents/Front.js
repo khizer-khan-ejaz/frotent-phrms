@@ -7,7 +7,7 @@ import 'owl.carousel/dist/assets/owl.theme.default.css';
 import Events from "./Events";
 import Blogs from "./Blogs";
 import Gallery from "./Gallery";
-import Cause from "./Cause";
+
 
 
 import  CarouselComponent  from "./CarouselComponent";

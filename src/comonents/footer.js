@@ -189,7 +189,7 @@ const Footer = () => {
               © {new Date().getFullYear()} PHRMS. All rights reserved. Made with{' '}
               <FaHeart className="inline text-red-500 mx-1 animate-pulse" /> by{' '}
               <a
-                href="#"
+                href="https://phrms.soc"
                 className="text-green-400 hover:text-green-300 font-semibold transition-colors duration-300"
               >
                 PHRMS Team

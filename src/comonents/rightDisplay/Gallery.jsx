@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react'
 import GalleryUpload from './GalleryUpload'
 import axios from 'axios';
-import { Button, Flex, Spinner, Text } from '@chakra-ui/react';
+import {  Flex, Spinner } from '@chakra-ui/react';
 import { Context } from '../../context/Context';
 import DeleteButton from "./DeleteButton";
-import { MdCancel, MdDelete } from "react-icons/md";
+import { MdCancel } from "react-icons/md";
 import useToast from "../../hooks/useToast";
 
 const Gallery = () => {

@@ -61,7 +61,7 @@ const OurPrograms = () => {
                     return <div 
                      key={index} className='shadow-md p-2 rounded-md cursor-pointer w-[40%] my-[20px] box-border flex justify-center items-center gap-[10px]'>
                         <div>
-                        <img  className={` ${index == 0 && "scale-[1.2]"} ${index == 1 && "scale-[0.8]"} ${index == 5 && "scale-[0.8]"} h-[90px]`} src={item.img} alt={item.img} />
+                        <img  className={` ${index === 0 && "scale-[1.2]"} ${index === 1 && "scale-[0.8]"} ${index === 5 && "scale-[0.8]"} h-[90px]`} src={item.img} alt={item.img} />
                         </div>
                         <div>
                         <h1 className={`text-[2rem] ${item.textColor}  font-bold border-b-[5px]  border-b-solid ${item.borderColor}   inline-block  `}> {item.title} </h1>

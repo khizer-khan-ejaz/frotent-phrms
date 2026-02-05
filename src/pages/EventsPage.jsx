@@ -2,7 +2,7 @@ import React from 'react';
 import Nav from '../comonents/Nav';
 import Events from "../comonents/Events";
 import Footer from '../comonents/footer';
-import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaStar, FaUsers, FaTicketAlt } from 'react-icons/fa';
+import { FaCalendarAlt, FaMapMarkerAlt, FaStar, FaUsers, FaTicketAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const EventsPage = () => {

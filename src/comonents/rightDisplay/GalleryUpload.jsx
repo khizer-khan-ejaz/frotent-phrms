@@ -9,8 +9,7 @@ import {
     ModalCloseButton,
     useDisclosure,
     Button,
-    Input,
-    Text
+    
   } from '@chakra-ui/react'
   import { CiImageOn } from "react-icons/ci";
   import axios from "axios";

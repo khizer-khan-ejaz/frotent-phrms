@@ -3,13 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button} from '@chakra-ui/react';
 import { Context } from '../context/Context';
 import axios from 'axios';
-import {
-    Input,
-    InputGroup,
-    InputRightElement,
-    FormControl,
-    FormLabel,
-} from '@chakra-ui/react';
+
 import { IoMdEyeOff } from "react-icons/io";
 import { FaEye } from "react-icons/fa";
 import useToast from '../hooks/useToast';
@@ -37,19 +31,28 @@ function Login() {
     const navigate = useNavigate();
 
     useEffect(() => {
+    const isPasswordValidated =
+        !passwordErrors.number &&
+        !passwordErrors.character &&
+        !passwordErrors.specialCharacter;
 
-        const isPasswordValidated = !passwordErrors.number && !passwordErrors.character && !passwordErrors.specialCharacter;
-        if (loginDetails.email?.length > 0 && isPasswordValidated && loginDetails.password?.length > 0) {
-            setValidated(true);
-        }
-        else {
-            setValidated(false);
-        }
+    if (
+        loginDetails.email.length > 0 &&
+        loginDetails.password.length > 0 &&
+        isPasswordValidated
+    ) {
+        setValidated(true);
+    } else {
+        setValidated(false);
+    }
+}, [
+    loginDetails.email,
+    loginDetails.password,
+    passwordErrors.number,
+    passwordErrors.character,
+    passwordErrors.specialCharacter,
+]);
 
-        console.log("inside useEffect");
-
-
-    }, [loginDetails.email, loginDetails.password])
 
 
     function validatePassword(password) {

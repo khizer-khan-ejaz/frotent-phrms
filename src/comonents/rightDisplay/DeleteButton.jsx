@@ -1,5 +1,5 @@
 import React from 'react'
-import { MdCancel, MdDelete } from "react-icons/md";
+import {  MdDelete } from "react-icons/md";
 
 const DeleteButton = ({setDeleteActivate , deleteActivate}) => {
   return (

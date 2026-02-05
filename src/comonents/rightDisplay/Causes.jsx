@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Flex , Collapse , Button} from '@chakra-ui/react';
 import DeleteButton from './DeleteButton';
 import { MdCancel } from 'react-icons/md';
 import axios from 'axios';
 import CreateCause from './CreateCause';
 import { Context } from '../../context/Context';
-import { ToastContainer, toast } from 'react-toastify';
+
 import useToast from "../../hooks/useToast";
 
 const Causes = () => {
@@ -13,7 +13,7 @@ const Causes = () => {
   const{showSuccess , showError} = useToast();
   const{user} = useContext(Context);
   const token = user.token;
-  const{totalCauses , setTotalCauses} = useContext(Context);
+  const{  setTotalCauses} = useContext(Context);
   const[deleteActive , setDeleteActivate] = useState(false);
   const[causes , setCauses] = useState([]);
 
@@ -79,7 +79,7 @@ const Causes = () => {
       }
 
       setCauses(prev=>{
-        return prev.filter(p=> p._id != cause._id);
+        return prev.filter(p=> p._id !== cause._id);
       })
 
       setTotalCauses(prev =>{

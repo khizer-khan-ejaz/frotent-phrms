@@ -19,25 +19,23 @@ const Sidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [pathname, setPathname] = useState({
+    const [pathname] = useState({
         gallery: "/admin/gallery",
         blogs: "/admin/blogs",
         events: "/admin/events",
         cause: "/admin/cause"
     })
 
-    useEffect(()=>{
-
-        if(location.pathname == "/admin" || location.pathname == "/admin/"){
-            navigate("gallery");
-        }
-        console.log("inside the use effect");
-    },[pathname])
+    useEffect(() => {
+    if (location.pathname.startsWith("/admin")) {
+        navigate("gallery");
+    }
+}, [location.pathname, navigate]);
 
     
 
     const setActiveLink = (path) => {
-        if (pathname[path] == location.pathname)
+        if (pathname[path] === location.pathname)
             return "text-white bg-green-500 shadow-xl";
         else return ""
     }
