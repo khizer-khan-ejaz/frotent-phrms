@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import UseStateHook from '../hooks/UseStateHook';
 import { formatDistanceToNow } from 'date-fns';
 import { FaHeart, FaArrowRight, FaClock, FaChevronLeft, FaChevronRight, FaDonate, FaUsers, FaHandHoldingHeart } from 'react-icons/fa';
+import {  useCallback } from "react";
+
 
 const Cause = () => {
     const { data, dataLoading } = UseStateHook(`${process.env.REACT_APP_BACKEND_URL}/api/cause`);
@@ -10,13 +12,10 @@ const Cause = () => {
 
     const causes = data?.causes || [];
 
-    const nextSlide = () => {
-        if (isAnimating || causes.length === 0) return;
-        setIsAnimating(true);
-        setCurrentIndex((prev) => (prev + 1) % causes.length);
-        setTimeout(() => setIsAnimating(false), 500);
-    };
-
+    
+const nextSlide = useCallback(() => {
+  setCurrentIndex((prev) => (prev + 1) % causes.length);
+}, [causes.length]);
     const prevSlide = () => {
         if (isAnimating || causes.length === 0) return;
         setIsAnimating(true);
@@ -33,13 +32,12 @@ const Cause = () => {
 
     // Auto-play
     useEffect(() => {
-        if (causes.length === 0) return;
-        const interval = setInterval(() => {
-            nextSlide();
-        }, 5000);
+  if (causes.length === 0) return;
 
-        return () => clearInterval(interval);
-    }, [currentIndex, causes.length]);
+  const interval = setInterval(nextSlide, 5000);
+  return () => clearInterval(interval);
+}, [nextSlide, causes.length]);
+
 
     // Get visible causes based on screen size
     const getVisibleCauses = () => {

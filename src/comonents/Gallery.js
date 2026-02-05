@@ -1,35 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback} from 'react';
 import UseStateHook from '../hooks/UseStateHook';
 import { FaTimes, FaChevronLeft, FaChevronRight, FaSearchPlus, FaExpand, FaDownload } from 'react-icons/fa';
 
 const Gallery = () => {
-    const { data, dataLoading } = UseStateHook(`${process.env.REACT_APP_BACKEND_URL}/api/gallery`);
+     const { data, dataLoading } = UseStateHook(`${process.env.REACT_APP_BACKEND_URL}/api/gallery`);
     const [selectedImage, setSelectedImage] = useState(null);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [filter, setFilter] = useState('all');
-
-    const openLightbox = (image, index) => {
+    
+    const openLightbox = useCallback((image, index) => {
         setSelectedImage(image);
         setCurrentIndex(index);
         document.body.style.overflow = 'hidden';
-    };
+    }, []);
 
-    const closeLightbox = () => {
+    const closeLightbox = useCallback(() => {
         setSelectedImage(null);
         document.body.style.overflow = 'auto';
-    };
+    }, []);
 
-    const goToPrevious = () => {
-        const newIndex = currentIndex === 0 ? data.galleryImages.length - 1 : currentIndex - 1;
+    const goToPrevious = useCallback(() => {
+        const newIndex = currentIndex === 0 ? data?.galleryImages?.length - 1 : currentIndex - 1;
         setCurrentIndex(newIndex);
-        setSelectedImage(data.galleryImages[newIndex]);
-    };
+        setSelectedImage(data?.galleryImages?.[newIndex]);
+    }, [currentIndex, data?.galleryImages]);
 
-    const goToNext = () => {
-        const newIndex = currentIndex === data.galleryImages.length - 1 ? 0 : currentIndex + 1;
+    const goToNext = useCallback(() => {
+        const newIndex = currentIndex === (data?.galleryImages?.length - 1) ? 0 : currentIndex + 1;
         setCurrentIndex(newIndex);
-        setSelectedImage(data.galleryImages[newIndex]);
-    };
+        setSelectedImage(data?.galleryImages?.[newIndex]);
+    }, [currentIndex, data?.galleryImages]);
 
     useEffect(() => {
         const handleKeyPress = (e) => {
@@ -41,8 +40,7 @@ const Gallery = () => {
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [selectedImage, currentIndex]);
-
+    }, [selectedImage, goToPrevious, goToNext, closeLightbox]);
     return (
         <div className="min-h-screen relative overflow-hidden">
             {/* Animated Background */}

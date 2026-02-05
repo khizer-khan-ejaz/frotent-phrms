@@ -1,8 +1,8 @@
 
 import './App.css';
 
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Sigup from './comonents/singup';
+import { Route, Routes } from 'react-router-dom';
+
 import Front from './comonents/Front';
 import About from './comonents/about';
 import BlogPage from './pages/BlogPage';

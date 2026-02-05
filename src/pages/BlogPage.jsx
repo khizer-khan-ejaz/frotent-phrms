@@ -1,4 +1,4 @@
-import React from 'react'
+
 import Footer from '../comonents/footer'
 import Nav from '../comonents/Nav'
 import Blog from "../comonents/Blogs";

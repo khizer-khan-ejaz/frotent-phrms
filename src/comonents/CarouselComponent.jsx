@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 
 const FullScreenCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -33,9 +33,9 @@ const FullScreenCarousel = () => {
     }
   ];
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  const nextSlide = useCallback(() => {
+  setCurrentSlide((prev) => (prev + 1) % slides.length);
+}, [slides.length]);
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
@@ -46,10 +46,11 @@ const FullScreenCarousel = () => {
   };
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
-    const interval = setInterval(nextSlide, 6000);
-    return () => clearInterval(interval);
-  }, [currentSlide, isAutoPlaying]);
+  if (!isAutoPlaying) return;
+
+  const interval = setInterval(nextSlide, 6000);
+  return () => clearInterval(interval);
+}, [nextSlide, isAutoPlaying]);
 
   const handleTouchStart = (e) => setTouchStart(e.targetTouches[0].clientX);
   const handleTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);

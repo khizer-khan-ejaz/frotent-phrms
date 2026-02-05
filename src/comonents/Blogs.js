@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import UseStateHook from '../hooks/UseStateHook';
-import { FaCalendarAlt, FaUser, FaComment, FaArrowRight, FaClock, FaTag } from 'react-icons/fa';
+import { FaCalendarAlt, FaUser, FaComment, FaArrowRight, FaClock } from 'react-icons/fa';
 
 const Blogs = () => {
     const { data, dataLoading } = UseStateHook("https://phrmsbackend.vercel.app/api/blogs");
     const [page, setPage] = useState(1);
-    const [hoveredBlog, setHoveredBlog] = useState(null);
     const itemsPerPage = 6;
 
     const totalPages = data?.blogs ? Math.ceil(data.blogs.length / itemsPerPage) : 0;
@@ -83,8 +82,6 @@ const Blogs = () => {
                                         key={index}
                                         className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 animate-fadeInUp"
                                         style={{ animationDelay: `${index * 0.1}s` }}
-                                        onMouseEnter={() => setHoveredBlog(index)}
-                                        onMouseLeave={() => setHoveredBlog(null)}
                                     >
                                         {/* Image Container */}
                                         <div className="relative h-64 overflow-hidden">

@@ -1,4 +1,4 @@
-import React from "react";
+
 import Nav from "./Nav";
 import Footer from "./footer";
 import { FaHeart, FaUsers, FaHandsHelping, FaBullseye, FaEye, FaAward, FaCheckCircle, FaGraduationCap, FaBook, FaLaptop, FaChild } from 'react-icons/fa';
