@@ -1,25 +1,21 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import GalleryUpload from './GalleryUpload'
 import axios from 'axios';
-import {  Flex, Spinner } from '@chakra-ui/react';
+import { Flex, Spinner } from '@chakra-ui/react';
 import { Context } from '../../context/Context';
 import DeleteButton from "./DeleteButton";
 import { MdCancel } from "react-icons/md";
 import useToast from "../../hooks/useToast";
 
 const Gallery = () => {
-
-  const{showSuccess , showError} = useToast();
-
+  const { showSuccess, showError } = useToast();
   const [galleryImages, setGalleryImages] = useState([]);
   const [galleryImagesLoading, setGalleryImagesLoading] = useState(false);
   const [deleteActivate, setDeleteActivate] = useState(false);
-  const { setTotalGalleryImages , user } = useContext(Context);
-
+  const { setTotalGalleryImages, user } = useContext(Context);
   const token = user.token;
 
-  useState(() => {
-
+  useEffect(() => {
     (async () => {
       try {
         setGalleryImagesLoading(true);
@@ -41,15 +37,14 @@ const Gallery = () => {
       }
 
     })()
-
-  }, [])
+  }, [setTotalGalleryImages])
 
   const handleGalleryImageDelete = async (image) => {
     try {
       const res = await axios({
         url: `${process.env.REACT_APP_BACKEND_URL}/api/gallery/delete/${image._id}`,
         method: "delete",
-        headers : {
+        headers: {
           'Authorization': `Bearer ${token}`
         }
       })
@@ -60,7 +55,7 @@ const Gallery = () => {
 
       const data = res.data;
 
-      if(data.error){
+      if (data.error) {
         showError(data.error);
         return;
       }
@@ -78,7 +73,6 @@ const Gallery = () => {
     }
   }
 
-
   if (galleryImagesLoading) {
     return <Flex h={"50px"} justifyContent={"center"} alignItems={"center"} >
       <Spinner size={"xl"} />
@@ -86,18 +80,18 @@ const Gallery = () => {
   }
 
   return (
-    <div className=' scroller w-[100%] p-2 relative h-[100%] overflow-scroll'>
-
+    <div className='scroller w-[100%] p-2 relative h-[100%] overflow-scroll'>
+      
       {/* <Button _hover={{bg : "red.300"}} marginLeft={"auto"} bg={"red"} color={"white"} display={"flex"} gap={"10px"}  h={{base : "35px" , md : "40px"}} fontSize={{base : "12px" , md : "15px"}} onClick={()=> setDeleteActivate(!deleteActivate)} >  <Text display={{base : "none" , md : "inline"}}> Delete </Text>  <MdDelete/>  </Button> */}
-      <div className='flex justify-center items-center  w-[100%]'>
+      <div className='flex justify-center items-center w-[100%]'>
         <DeleteButton setDeleteActivate={setDeleteActivate} deleteActivate={deleteActivate} />
       </div>
 
       <Flex flexWrap={"wrap"} gap={"20px"} justifyContent={"center"} alignItems={"center"} >
         {galleryImages.map((gallery, index) => {
-          return <div key={index} className=' shadow-lg transition-all duration-500  flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px] ' >
+          return <div key={index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
 
-            <MdCancel onClick={() => handleGalleryImageDelete(gallery)} cursor={"pointer"} className={` ${deleteActivate ? "block" : "hidden"} ml-auto`} size={"25px"} />
+            <MdCancel onClick={() => handleGalleryImageDelete(gallery)} cursor={"pointer"} className={`${deleteActivate ? "block" : "hidden"} ml-auto`} size={"25px"} />
 
             <div className='h-[100%] w-[100%]'>
               <img className='rounded-md' src={gallery.img} alt={gallery.img} />
@@ -106,8 +100,6 @@ const Gallery = () => {
           </div>
         })}
       </Flex>
-
-
 
       <GalleryUpload setTotalGalleryImages={setTotalGalleryImages} setGalleryImages={setGalleryImages} galleryImages={galleryImages} />
 
