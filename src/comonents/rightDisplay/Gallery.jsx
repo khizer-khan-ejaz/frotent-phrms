@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useCallback } from 'react'
 import GalleryUpload from './GalleryUpload'
 import axios from 'axios';
 import { Flex, Spinner } from '@chakra-ui/react';
@@ -10,12 +10,46 @@ import useToast from "../../hooks/useToast";
 
 const Gallery = () => {
   const { showSuccess, showError } = useToast();
-  const [galleryImages, setGalleryImages] = useState([]);
-  const [galleryImagesLoading, setGalleryImagesLoading] = useState(false);
-  const [deleteActivate, setDeleteActivate] = useState(false);
+  const [state, setState] = useState({
+    images: [],
+    loading: false,
+    deleteActivate: false
+  });
+
   const contextValue = useContext(Context);
   const { setTotalGalleryImages, user } = contextValue || {};
   const token = user?.token;
+
+  // Protected setter that CANNOT accept undefined
+  const setGalleryImages = useCallback((value) => {
+    setState(prev => {
+      let newImages;
+
+      if (typeof value === 'function') {
+        newImages = value(prev.images || []);
+      } else {
+        newImages = value;
+      }
+
+      // FORCE array, reject undefined/null
+      const safeImages = Array.isArray(newImages) ? newImages : [];
+
+      console.log("Setting gallery images:", safeImages);
+
+      return {
+        ...prev,
+        images: safeImages
+      };
+    });
+  }, []);
+
+  const setGalleryImagesLoading = useCallback((loading) => {
+    setState(prev => ({ ...prev, loading }));
+  }, []);
+
+  const setDeleteActivate = useCallback((activate) => {
+    setState(prev => ({ ...prev, deleteActivate: activate }));
+  }, []);
 
 
   useEffect(() => {
@@ -32,6 +66,9 @@ const Gallery = () => {
         const data = res.data;
         const images = Array.isArray(data?.galleryImages) ? data.galleryImages : [];
 
+        console.log("API Response:", data);
+        console.log("Extracted images:", images);
+
         setGalleryImages(images);
         setTotalGalleryImages(images.length);
         localStorage.setItem("galleryImagesCount", images.length);
@@ -44,7 +81,7 @@ const Gallery = () => {
         setGalleryImagesLoading(false);
       }
     })()
-  }, [setTotalGalleryImages])
+  }, [setTotalGalleryImages, setGalleryImages, setGalleryImagesLoading, showError])
 
 
   const handleGalleryImageDelete = async (image) => {
@@ -62,10 +99,7 @@ const Gallery = () => {
         }
       })
 
-      setGalleryImages(prev => {
-        const current = Array.isArray(prev) ? prev : [];
-        return current.filter(img => img._id !== image._id);
-      });
+      setGalleryImages(prev => prev.filter(img => img._id !== image._id));
 
       const data = res.data;
 
@@ -90,8 +124,10 @@ const Gallery = () => {
     }
   }
 
+  // Extract from state
+  const { images, loading, deleteActivate } = state;
 
-  if (galleryImagesLoading) {
+  if (loading) {
     return <Flex h={"50px"} justifyContent={"center"} alignItems={"center"} >
       <Spinner size={"xl"} />
     </Flex>
@@ -103,17 +139,6 @@ const Gallery = () => {
     </div>
   }
 
-  // ADD THIS DEBUG LOG
-  console.log("Gallery Images:", galleryImages, "Type:", typeof galleryImages, "Is Array:", Array.isArray(galleryImages));
-
-  // THIS IS THE CRITICAL LINE - MUST BE BEFORE THE RETURN
-  if (!galleryImages) {
-    console.error("CRITICAL: galleryImages is null or undefined!");
-    return <div className='text-center p-4 text-red-500'>
-      Loading error. Please refresh the page.
-    </div>
-  }
-
   return (
     <div className='scroller w-[100%] p-2 relative h-[100%] overflow-scroll'>
 
@@ -122,7 +147,7 @@ const Gallery = () => {
       </div>
 
       <Flex flexWrap={"wrap"} gap={"20px"} justifyContent={"center"} alignItems={"center"} >
-        {Array.isArray(galleryImages) ? galleryImages.map((gallery, index) => {
+        {images.map((gallery, index) => {
           if (!gallery) return null;
 
           return <div key={gallery._id || index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
@@ -139,11 +164,9 @@ const Gallery = () => {
             </div>
 
           </div>
-        }) : <div className='text-center p-4 text-red-500'>
-          Invalid gallery data
-        </div>}
+        })}
 
-        {Array.isArray(galleryImages) && galleryImages.length === 0 && (
+        {images.length === 0 && (
           <div className='text-center p-4 text-gray-500'>
             No gallery images available
           </div>
@@ -153,7 +176,7 @@ const Gallery = () => {
       <GalleryUpload
         setTotalGalleryImages={setTotalGalleryImages}
         setGalleryImages={setGalleryImages}
-        galleryImages={Array.isArray(galleryImages) ? galleryImages : []}
+        galleryImages={images}
       />
 
     </div>
