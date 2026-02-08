@@ -1,11 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react'
-import GalleryUpload from './GalleryUpload'
-import axios from 'axios';
 import { Flex, Spinner } from '@chakra-ui/react';
-import { Context } from '../../context/Context';
-import DeleteButton from "./DeleteButton";
+import axios from 'axios';
+import { useContext, useEffect, useState } from 'react';
 import { MdCancel } from "react-icons/md";
+import { Context } from '../../context/Context';
 import useToast from "../../hooks/useToast";
+import DeleteButton from "./DeleteButton";
+import GalleryUpload from './GalleryUpload';
+
 
 const Gallery = () => {
   const { showSuccess, showError } = useToast();
@@ -14,6 +15,7 @@ const Gallery = () => {
   const [deleteActivate, setDeleteActivate] = useState(false);
   const { setTotalGalleryImages, user } = useContext(Context);
   const token = user.token;
+
 
   useEffect(() => {
     (async () => {
@@ -26,18 +28,25 @@ const Gallery = () => {
         })
 
         const data = res.data;
-        setGalleryImages(data.galleryImages);
-        setTotalGalleryImages(data.galleryImages.length);
-        localStorage.setItem("galleryImagesCount", data.galleryImages.length);
+
+        // Add validation and fallback
+        const images = data?.galleryImages || [];
+        setGalleryImages(images);
+        setTotalGalleryImages(images.length);
+        localStorage.setItem("galleryImagesCount", images.length);
 
       } catch (err) {
         console.log(err.message);
+        // Ensure state remains an array even on error
+        setGalleryImages([]);
+        showError("Failed to load gallery images");
       } finally {
         setGalleryImagesLoading(false);
       }
 
     })()
   }, [setTotalGalleryImages])
+
 
   const handleGalleryImageDelete = async (image) => {
     try {
@@ -50,6 +59,8 @@ const Gallery = () => {
       })
 
       setGalleryImages(prev => {
+        // Add safety check
+        if (!prev) return [];
         return prev.filter(img => img._id !== image._id)
       })
 
@@ -61,8 +72,9 @@ const Gallery = () => {
       }
 
       setTotalGalleryImages(prev => {
-        localStorage.setItem("galleryImagesCount", prev - 1);
-        return prev - 1
+        const newCount = prev - 1;
+        localStorage.setItem("galleryImagesCount", newCount);
+        return newCount;
       });
 
       showSuccess(data.success);
@@ -73,25 +85,32 @@ const Gallery = () => {
     }
   }
 
+
   if (galleryImagesLoading) {
     return <Flex h={"50px"} justifyContent={"center"} alignItems={"center"} >
       <Spinner size={"xl"} />
     </Flex>
   }
 
+
   return (
     <div className='scroller w-[100%] p-2 relative h-[100%] overflow-scroll'>
-      
-      {/* <Button _hover={{bg : "red.300"}} marginLeft={"auto"} bg={"red"} color={"white"} display={"flex"} gap={"10px"}  h={{base : "35px" , md : "40px"}} fontSize={{base : "12px" , md : "15px"}} onClick={()=> setDeleteActivate(!deleteActivate)} >  <Text display={{base : "none" , md : "inline"}}> Delete </Text>  <MdDelete/>  </Button> */}
+
       <div className='flex justify-center items-center w-[100%]'>
         <DeleteButton setDeleteActivate={setDeleteActivate} deleteActivate={deleteActivate} />
       </div>
 
       <Flex flexWrap={"wrap"} gap={"20px"} justifyContent={"center"} alignItems={"center"} >
-        {galleryImages.map((gallery, index) => {
+        {/* Add safety check with optional chaining and fallback */}
+        {(galleryImages || []).map((gallery, index) => {
           return <div key={index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
 
-            <MdCancel onClick={() => handleGalleryImageDelete(gallery)} cursor={"pointer"} className={`${deleteActivate ? "block" : "hidden"} ml-auto`} size={"25px"} />
+            <MdCancel
+              onClick={() => handleGalleryImageDelete(gallery)}
+              cursor={"pointer"}
+              className={`${deleteActivate ? "block" : "hidden"} ml-auto`}
+              size={"25px"}
+            />
 
             <div className='h-[100%] w-[100%]'>
               <img className='rounded-md' src={gallery.img} alt={gallery.img} />
@@ -99,12 +118,24 @@ const Gallery = () => {
 
           </div>
         })}
+
+        {/* Show message when no images */}
+        {galleryImages.length === 0 && !galleryImagesLoading && (
+          <div className='text-center p-4 text-gray-500'>
+            No gallery images available
+          </div>
+        )}
       </Flex>
 
-      <GalleryUpload setTotalGalleryImages={setTotalGalleryImages} setGalleryImages={setGalleryImages} galleryImages={galleryImages} />
+      <GalleryUpload
+        setTotalGalleryImages={setTotalGalleryImages}
+        setGalleryImages={setGalleryImages}
+        galleryImages={galleryImages}
+      />
 
     </div>
   )
 }
+
 
 export default Gallery
