@@ -17,17 +17,6 @@ const Gallery = () => {
   const { setTotalGalleryImages, user } = contextValue || {};
   const token = user?.token;
 
-  // CRITICAL: Wrapper function to ensure state is NEVER undefined
-  const setSafeGalleryImages = (value) => {
-    if (typeof value === 'function') {
-      setGalleryImages(prev => {
-        const result = value(Array.isArray(prev) ? prev : []);
-        return Array.isArray(result) ? result : [];
-      });
-    } else {
-      setGalleryImages(Array.isArray(value) ? value : []);
-    }
-  };
 
   useEffect(() => {
     if (!setTotalGalleryImages) return;
@@ -43,13 +32,13 @@ const Gallery = () => {
         const data = res.data;
         const images = Array.isArray(data?.galleryImages) ? data.galleryImages : [];
 
-        setSafeGalleryImages(images);
+        setGalleryImages(images);
         setTotalGalleryImages(images.length);
         localStorage.setItem("galleryImagesCount", images.length);
 
       } catch (err) {
         console.error("Gallery fetch error:", err);
-        setSafeGalleryImages([]);
+        setGalleryImages([]);
         showError?.("Failed to load gallery images");
       } finally {
         setGalleryImagesLoading(false);
@@ -73,8 +62,10 @@ const Gallery = () => {
         }
       })
 
-      // Use safe setter
-      setSafeGalleryImages(prev => prev.filter(img => img._id !== image._id));
+      setGalleryImages(prev => {
+        const current = Array.isArray(prev) ? prev : [];
+        return current.filter(img => img._id !== image._id);
+      });
 
       const data = res.data;
 
@@ -99,8 +90,6 @@ const Gallery = () => {
     }
   }
 
-  // Force galleryImages to always be an array before render
-  const safeGalleryImages = Array.isArray(galleryImages) ? galleryImages : [];
 
   if (galleryImagesLoading) {
     return <Flex h={"50px"} justifyContent={"center"} alignItems={"center"} >
@@ -114,6 +103,17 @@ const Gallery = () => {
     </div>
   }
 
+  // ADD THIS DEBUG LOG
+  console.log("Gallery Images:", galleryImages, "Type:", typeof galleryImages, "Is Array:", Array.isArray(galleryImages));
+
+  // THIS IS THE CRITICAL LINE - MUST BE BEFORE THE RETURN
+  if (!galleryImages) {
+    console.error("CRITICAL: galleryImages is null or undefined!");
+    return <div className='text-center p-4 text-red-500'>
+      Loading error. Please refresh the page.
+    </div>
+  }
+
   return (
     <div className='scroller w-[100%] p-2 relative h-[100%] overflow-scroll'>
 
@@ -122,8 +122,7 @@ const Gallery = () => {
       </div>
 
       <Flex flexWrap={"wrap"} gap={"20px"} justifyContent={"center"} alignItems={"center"} >
-        {/* USE safeGalleryImages instead of galleryImages */}
-        {safeGalleryImages.map((gallery, index) => {
+        {Array.isArray(galleryImages) ? galleryImages.map((gallery, index) => {
           if (!gallery) return null;
 
           return <div key={gallery._id || index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
@@ -140,9 +139,11 @@ const Gallery = () => {
             </div>
 
           </div>
-        })}
+        }) : <div className='text-center p-4 text-red-500'>
+          Invalid gallery data
+        </div>}
 
-        {safeGalleryImages.length === 0 && (
+        {Array.isArray(galleryImages) && galleryImages.length === 0 && (
           <div className='text-center p-4 text-gray-500'>
             No gallery images available
           </div>
@@ -151,8 +152,8 @@ const Gallery = () => {
 
       <GalleryUpload
         setTotalGalleryImages={setTotalGalleryImages}
-        setGalleryImages={setSafeGalleryImages}
-        galleryImages={safeGalleryImages}
+        setGalleryImages={setGalleryImages}
+        galleryImages={Array.isArray(galleryImages) ? galleryImages : []}
       />
 
     </div>
