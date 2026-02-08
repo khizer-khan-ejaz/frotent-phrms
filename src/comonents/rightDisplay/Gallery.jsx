@@ -1,11 +1,11 @@
-import { Flex, Spinner } from '@chakra-ui/react';
+import React, { useContext, useState, useEffect } from 'react'
+import GalleryUpload from './GalleryUpload'
 import axios from 'axios';
-import { useContext, useEffect, useState } from 'react';
-import { MdCancel } from "react-icons/md";
+import { Flex, Spinner } from '@chakra-ui/react';
 import { Context } from '../../context/Context';
-import useToast from "../../hooks/useToast";
 import DeleteButton from "./DeleteButton";
-import GalleryUpload from './GalleryUpload';
+import { MdCancel } from "react-icons/md";
+import useToast from "../../hooks/useToast";
 
 
 const Gallery = () => {
@@ -13,33 +13,49 @@ const Gallery = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const [galleryImagesLoading, setGalleryImagesLoading] = useState(false);
   const [deleteActivate, setDeleteActivate] = useState(false);
-  const { setTotalGalleryImages, user } = useContext(Context);
-  const token = user.token;
+  const contextValue = useContext(Context);
+
+  // Add null check for context
+  const { setTotalGalleryImages, user } = contextValue || {};
+  const token = user?.token;
 
 
   useEffect(() => {
+    // Skip if context is not ready
+    if (!setTotalGalleryImages) {
+      console.error("Context not initialized properly");
+      return;
+    }
+
     (async () => {
       try {
         setGalleryImagesLoading(true);
         const res = await axios({
           method: "get",
-          // url: "https://phrmsbackend.vercel.app/api/gallery",
           url: "/api/gallery",
         })
 
         const data = res.data;
 
-        // Add validation and fallback
-        const images = data?.galleryImages || [];
+        // Multiple layers of validation
+        if (!data) {
+          console.error("No data received from API");
+          setGalleryImages([]);
+          return;
+        }
+
+        const images = Array.isArray(data.galleryImages) ? data.galleryImages : [];
+
+        console.log("Fetched images:", images); // Debug log
+
         setGalleryImages(images);
         setTotalGalleryImages(images.length);
         localStorage.setItem("galleryImagesCount", images.length);
 
       } catch (err) {
-        console.log(err.message);
-        // Ensure state remains an array even on error
+        console.error("Gallery fetch error:", err);
         setGalleryImages([]);
-        showError("Failed to load gallery images");
+        showError?.("Failed to load gallery images");
       } finally {
         setGalleryImagesLoading(false);
       }
@@ -49,6 +65,11 @@ const Gallery = () => {
 
 
   const handleGalleryImageDelete = async (image) => {
+    if (!token) {
+      showError?.("Authentication required");
+      return;
+    }
+
     try {
       const res = await axios({
         url: `${process.env.REACT_APP_BACKEND_URL}/api/gallery/delete/${image._id}`,
@@ -59,29 +80,31 @@ const Gallery = () => {
       })
 
       setGalleryImages(prev => {
-        // Add safety check
-        if (!prev) return [];
-        return prev.filter(img => img._id !== image._id)
+        // Ensure prev is always an array
+        const currentImages = Array.isArray(prev) ? prev : [];
+        return currentImages.filter(img => img._id !== image._id)
       })
 
       const data = res.data;
 
-      if (data.error) {
-        showError(data.error);
+      if (data?.error) {
+        showError?.(data.error);
         return;
       }
 
-      setTotalGalleryImages(prev => {
-        const newCount = prev - 1;
-        localStorage.setItem("galleryImagesCount", newCount);
-        return newCount;
-      });
+      if (setTotalGalleryImages) {
+        setTotalGalleryImages(prev => {
+          const newCount = Math.max(0, (prev || 1) - 1);
+          localStorage.setItem("galleryImagesCount", newCount);
+          return newCount;
+        });
+      }
 
-      showSuccess(data.success);
+      showSuccess?.(data?.success || "Image deleted successfully");
 
     } catch (err) {
-      console.log(err.message);
-      showError(err.message);
+      console.error("Delete error:", err);
+      showError?.(err.message || "Failed to delete image");
     }
   }
 
@@ -90,6 +113,13 @@ const Gallery = () => {
     return <Flex h={"50px"} justifyContent={"center"} alignItems={"center"} >
       <Spinner size={"xl"} />
     </Flex>
+  }
+
+  // Early return if context not ready
+  if (!contextValue) {
+    return <div className='text-center p-4 text-red-500'>
+      Context not initialized. Please check your Context Provider.
+    </div>
   }
 
 
@@ -101,26 +131,27 @@ const Gallery = () => {
       </div>
 
       <Flex flexWrap={"wrap"} gap={"20px"} justifyContent={"center"} alignItems={"center"} >
-        {/* Add safety check with optional chaining and fallback */}
-        {(galleryImages || []).map((gallery, index) => {
-          return <div key={index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
+        {/* Triple safety: Array check, default to empty array, then map */}
+        {Array.isArray(galleryImages) && galleryImages.length > 0 ? (
+          galleryImages.map((gallery, index) => {
+            if (!gallery) return null; // Skip null/undefined items
 
-            <MdCancel
-              onClick={() => handleGalleryImageDelete(gallery)}
-              cursor={"pointer"}
-              className={`${deleteActivate ? "block" : "hidden"} ml-auto`}
-              size={"25px"}
-            />
+            return <div key={gallery._id || index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
 
-            <div className='h-[100%] w-[100%]'>
-              <img className='rounded-md' src={gallery.img} alt={gallery.img} />
+              <MdCancel
+                onClick={() => handleGalleryImageDelete(gallery)}
+                cursor={"pointer"}
+                className={`${deleteActivate ? "block" : "hidden"} ml-auto`}
+                size={"25px"}
+              />
+
+              <div className='h-[100%] w-[100%]'>
+                <img className='rounded-md' src={gallery.img} alt={gallery.img || 'Gallery image'} />
+              </div>
+
             </div>
-
-          </div>
-        })}
-
-        {/* Show message when no images */}
-        {galleryImages.length === 0 && !galleryImagesLoading && (
+          })
+        ) : (
           <div className='text-center p-4 text-gray-500'>
             No gallery images available
           </div>
@@ -130,7 +161,7 @@ const Gallery = () => {
       <GalleryUpload
         setTotalGalleryImages={setTotalGalleryImages}
         setGalleryImages={setGalleryImages}
-        galleryImages={galleryImages}
+        galleryImages={galleryImages || []}
       />
 
     </div>
