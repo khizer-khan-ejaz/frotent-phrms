@@ -46,12 +46,15 @@ const Gallery = () => {
         // On error, set empty array instead of leaving undefined
         setGalleryImages([]);
         setTotalGalleryImages(0);
-        showError("Failed to load gallery images");
+        if (showError) {
+          showError("Failed to load gallery images");
+        }
       } finally {
         setGalleryImagesLoading(false);
       }
 
     })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setTotalGalleryImages])
 
   const handleGalleryImageDelete = async (image) => {
