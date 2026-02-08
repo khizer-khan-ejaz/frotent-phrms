@@ -14,18 +14,23 @@ const Gallery = () => {
   const [galleryImagesLoading, setGalleryImagesLoading] = useState(false);
   const [deleteActivate, setDeleteActivate] = useState(false);
   const contextValue = useContext(Context);
-
-  // Add null check for context
   const { setTotalGalleryImages, user } = contextValue || {};
   const token = user?.token;
 
+  // CRITICAL: Wrapper function to ensure state is NEVER undefined
+  const setSafeGalleryImages = (value) => {
+    if (typeof value === 'function') {
+      setGalleryImages(prev => {
+        const result = value(Array.isArray(prev) ? prev : []);
+        return Array.isArray(result) ? result : [];
+      });
+    } else {
+      setGalleryImages(Array.isArray(value) ? value : []);
+    }
+  };
 
   useEffect(() => {
-    // Skip if context is not ready
-    if (!setTotalGalleryImages) {
-      console.error("Context not initialized properly");
-      return;
-    }
+    if (!setTotalGalleryImages) return;
 
     (async () => {
       try {
@@ -36,30 +41,19 @@ const Gallery = () => {
         })
 
         const data = res.data;
+        const images = Array.isArray(data?.galleryImages) ? data.galleryImages : [];
 
-        // Multiple layers of validation
-        if (!data) {
-          console.error("No data received from API");
-          setGalleryImages([]);
-          return;
-        }
-
-        const images = Array.isArray(data.galleryImages) ? data.galleryImages : [];
-
-        console.log("Fetched images:", images); // Debug log
-
-        setGalleryImages(images);
+        setSafeGalleryImages(images);
         setTotalGalleryImages(images.length);
         localStorage.setItem("galleryImagesCount", images.length);
 
       } catch (err) {
         console.error("Gallery fetch error:", err);
-        setGalleryImages([]);
+        setSafeGalleryImages([]);
         showError?.("Failed to load gallery images");
       } finally {
         setGalleryImagesLoading(false);
       }
-
     })()
   }, [setTotalGalleryImages])
 
@@ -79,11 +73,8 @@ const Gallery = () => {
         }
       })
 
-      setGalleryImages(prev => {
-        // Ensure prev is always an array
-        const currentImages = Array.isArray(prev) ? prev : [];
-        return currentImages.filter(img => img._id !== image._id)
-      })
+      // Use safe setter
+      setSafeGalleryImages(prev => prev.filter(img => img._id !== image._id));
 
       const data = res.data;
 
@@ -108,6 +99,8 @@ const Gallery = () => {
     }
   }
 
+  // Force galleryImages to always be an array before render
+  const safeGalleryImages = Array.isArray(galleryImages) ? galleryImages : [];
 
   if (galleryImagesLoading) {
     return <Flex h={"50px"} justifyContent={"center"} alignItems={"center"} >
@@ -115,13 +108,11 @@ const Gallery = () => {
     </Flex>
   }
 
-  // Early return if context not ready
   if (!contextValue) {
     return <div className='text-center p-4 text-red-500'>
-      Context not initialized. Please check your Context Provider.
+      Context not initialized
     </div>
   }
-
 
   return (
     <div className='scroller w-[100%] p-2 relative h-[100%] overflow-scroll'>
@@ -131,27 +122,27 @@ const Gallery = () => {
       </div>
 
       <Flex flexWrap={"wrap"} gap={"20px"} justifyContent={"center"} alignItems={"center"} >
-        {/* Triple safety: Array check, default to empty array, then map */}
-        {Array.isArray(galleryImages) && galleryImages.length > 0 ? (
-          galleryImages.map((gallery, index) => {
-            if (!gallery) return null; // Skip null/undefined items
+        {/* USE safeGalleryImages instead of galleryImages */}
+        {safeGalleryImages.map((gallery, index) => {
+          if (!gallery) return null;
 
-            return <div key={gallery._id || index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
+          return <div key={gallery._id || index} className='shadow-lg transition-all duration-500 flex-wrap lg:max-w-[350px] max-w-[300px] rounded-md mt-[20px]' >
 
-              <MdCancel
-                onClick={() => handleGalleryImageDelete(gallery)}
-                cursor={"pointer"}
-                className={`${deleteActivate ? "block" : "hidden"} ml-auto`}
-                size={"25px"}
-              />
+            <MdCancel
+              onClick={() => handleGalleryImageDelete(gallery)}
+              cursor={"pointer"}
+              className={`${deleteActivate ? "block" : "hidden"} ml-auto`}
+              size={"25px"}
+            />
 
-              <div className='h-[100%] w-[100%]'>
-                <img className='rounded-md' src={gallery.img} alt={gallery.img || 'Gallery image'} />
-              </div>
-
+            <div className='h-[100%] w-[100%]'>
+              <img className='rounded-md' src={gallery.img} alt={gallery.img || 'Gallery image'} />
             </div>
-          })
-        ) : (
+
+          </div>
+        })}
+
+        {safeGalleryImages.length === 0 && (
           <div className='text-center p-4 text-gray-500'>
             No gallery images available
           </div>
@@ -160,13 +151,12 @@ const Gallery = () => {
 
       <GalleryUpload
         setTotalGalleryImages={setTotalGalleryImages}
-        setGalleryImages={setGalleryImages}
-        galleryImages={galleryImages || []}
+        setGalleryImages={setSafeGalleryImages}
+        galleryImages={safeGalleryImages}
       />
 
     </div>
   )
 }
-
 
 export default Gallery
